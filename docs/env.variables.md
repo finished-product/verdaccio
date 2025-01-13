@@ -5,12 +5,13 @@ internal features.
 
 #### VERDACCIO_LEGACY_ALGORITHM
 
-Allows to define the specific algorithm for the token
-signature which by default is `aes-256-ctr`
+Allows to define the specific algorithm for the token signature which by default is `aes-256-ctr`. The algorithm must be supported by `crypto.createCipheriv` and `crypto.createDecipheriv`.
+Read more here: https://nodejs.org/api/crypto.html#crypto_crypto_createcipheriv_algorithm_key_iv_options
 
 #### VERDACCIO_LEGACY_ENCRYPTION_KEY
 
-By default, the token stores in the database, but using this variable allows to get it from memory
+By default, the token stores in the database, but using this variable allows to get it from memory, the length must be 32 characters otherwise will throw an error.
+Read more here: https://nodejs.org/api/crypto.html#crypto_crypto_createcipheriv_algorithm_key_iv_options
 
 #### VERDACCIO_PUBLIC_URL
 
@@ -44,3 +45,11 @@ The default header to identify the protocol is `X-Forwarded-Proto`, but there ar
 ```
 $ VERDACCIO_FORWARDED_PROTO=CloudFront-Forwarded-Proto verdaccio --listen 5000
 ```
+
+#### VERDACCIO_STORAGE_PATH
+
+By default, the storage is taken from config file, but using this variable allows to set it from environment variable.
+
+#### VERDACCIO_STORAGE_NAME
+
+The database name for `@verdaccio/local-storage` is by default `.verdaccio-db.json`, but this can be update by using this variable.

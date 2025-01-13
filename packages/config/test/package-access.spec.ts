@@ -1,21 +1,11 @@
-import path from 'path';
 import _ from 'lodash';
+import { describe, expect, test } from 'vitest';
 
-import {
-  getMatchedPackagesSpec,
-  normalisePackageAccess,
-  PACKAGE_ACCESS,
-} from '../src/package-access';
 import { parseConfigFile } from '../src';
+import { PACKAGE_ACCESS, normalisePackageAccess, normalizeUserList } from '../src/package-access';
+import { parseConfigurationFile } from './utils';
 
 describe('Package access utilities', () => {
-  const parseConfigurationFile = (conf) => {
-    const { name, ext } = path.parse(conf);
-    const format = ext.startsWith('.') ? ext.substring(1) : 'yaml';
-
-    return path.join(__dirname, `./partials/config/${format}/${name}.${format}`);
-  };
-
   describe('normalisePackageAccess', () => {
     test('should test basic conversion', () => {
       const { packages } = parseConfigFile(parseConfigurationFile('pkgs-basic'));
@@ -95,26 +85,17 @@ describe('Package access utilities', () => {
       () => {
         const { packages } = parseConfigFile(parseConfigurationFile('deprecated-pkgs-basic'));
         const access = normalisePackageAccess(packages);
-
         expect(access).toBeDefined();
-
         const scoped = access[`${PACKAGE_ACCESS.SCOPE}`];
         const all = access[`${PACKAGE_ACCESS.ALL}`];
         const react = access['react-*'];
-
         expect(react).toBeDefined();
         expect(react.access).toBeDefined();
-
-        // Intended checks, Typescript should catch this, we test the runtime part
-        // @ts-ignore
         expect(react.access).toEqual([]);
-        // @ts-ignore
         expect(react.publish[0]).toBe('admin');
         expect(react.proxy).toBeDefined();
-        // @ts-ignore
         expect(react.proxy).toEqual([]);
         expect(react.storage).toBeDefined();
-
         expect(react.storage).toBe('react-storage');
         expect(scoped).toBeDefined();
         expect(scoped.storage).not.toBeDefined();
@@ -133,7 +114,6 @@ describe('Package access utilities', () => {
 
       const scoped = access[`${PACKAGE_ACCESS.SCOPE}`];
       expect(scoped).toBeUndefined();
-
       // ** should be added by default **
       const all = access[`${PACKAGE_ACCESS.ALL}`];
       expect(all).toBeDefined();
@@ -144,30 +124,30 @@ describe('Package access utilities', () => {
       expect(_.isArray(all.publish)).toBeTruthy();
     });
   });
-
-  describe('getMatchedPackagesSpec', () => {
-    test('should test basic config', () => {
-      const { packages } = parseConfigFile(parseConfigurationFile('pkgs-custom'));
-      // @ts-ignore
-      expect(getMatchedPackagesSpec('react', packages).proxy).toMatch('facebook');
-      // @ts-ignore
-      expect(getMatchedPackagesSpec('angular', packages).proxy).toMatch('google');
-      // @ts-ignore
-      expect(getMatchedPackagesSpec('vue', packages).proxy).toMatch('npmjs');
-      // @ts-ignore
-      expect(getMatchedPackagesSpec('@scope/vue', packages).proxy).toMatch('npmjs');
+  describe('normaliseUserList', () => {
+    test('should normalize user list', () => {
+      const groupsList = 'admin superadmin';
+      const result = normalizeUserList(groupsList);
+      expect(result).toEqual(['admin', 'superadmin']);
     });
 
-    test('should test no ** wildcard on config', () => {
-      const { packages } = parseConfigFile(parseConfigurationFile('pkgs-nosuper-wildcard-custom'));
-      // @ts-ignore
-      expect(getMatchedPackagesSpec('react', packages).proxy).toMatch('facebook');
-      // @ts-ignore
-      expect(getMatchedPackagesSpec('angular', packages).proxy).toMatch('google');
-      // @ts-ignore
-      expect(getMatchedPackagesSpec('@fake/angular', packages).proxy).toMatch('npmjs');
-      expect(getMatchedPackagesSpec('vue', packages)).toBeUndefined();
-      expect(getMatchedPackagesSpec('@scope/vue', packages)).toBeUndefined();
+    test('should normalize empty user list', () => {
+      const groupsList = '';
+      const result = normalizeUserList(groupsList);
+      expect(result).toEqual([]);
+    });
+
+    test('should normalize user list array', () => {
+      const groupsList = ['admin', 'superadmin'];
+      const result = normalizeUserList(groupsList);
+      expect(result).toEqual(['admin', 'superadmin']);
+    });
+
+    test('should throw error for invalid user list', () => {
+      const groupsList = { group: 'admin' };
+      expect(() => {
+        normalizeUserList(groupsList);
+      }).toThrow('CONFIG: bad package acl (array or string expected): {"group":"admin"}');
     });
   });
 });

@@ -1,16 +1,10 @@
-import path from 'path';
+import { describe, expect, test } from 'vitest';
 
-import { hasProxyTo, sanityCheckUplinksProps, uplinkSanityCheck } from '../src/uplinks';
 import { normalisePackageAccess, parseConfigFile } from '../src';
+import { hasProxyTo, sanityCheckUplinksProps, uplinkSanityCheck } from '../src/uplinks';
+import { parseConfigurationFile } from './utils';
 
 describe('Uplinks Utilities', () => {
-  const parseConfigurationFile = (conf) => {
-    const { name, ext } = path.parse(conf);
-    const format = ext.startsWith('.') ? ext.substring(1) : 'yaml';
-
-    return path.join(__dirname, `./partials/config/${format}/${name}.${format}`);
-  };
-
   describe('uplinkSanityCheck', () => {
     test('should test basic conversion', () => {
       const uplinks = uplinkSanityCheck(

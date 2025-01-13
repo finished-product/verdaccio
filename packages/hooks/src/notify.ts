@@ -1,14 +1,13 @@
 /* eslint-disable no-undef */
-
+import buildDebug from 'debug';
 import Handlebars from 'handlebars';
 
-import buildDebug from 'debug';
-import { Config, Package, RemoteUser, Notification } from '@verdaccio/types';
 import { logger } from '@verdaccio/logger';
-import { notifyRequest, NotifyRequestOptions } from './notify-request';
+import { Config, Notification, Package, RemoteUser } from '@verdaccio/types';
+
+import { FetchOptions, notifyRequest } from './notify-request';
 
 const debug = buildDebug('verdaccio:hooks');
-type TemplateMetadata = Package & { publishedPackage: string };
 
 export function compileTemplate(content, metadata) {
   // FUTURE: multiple handlers
@@ -20,7 +19,7 @@ export function compileTemplate(content, metadata) {
         const template: HandlebarsTemplateDelegate = Handlebars.compile(content);
         return resolve(template(metadata));
       }
-    } catch (error) {
+    } catch (error: any) {
       debug('error  template handler %o', error);
       reject(error);
     }
@@ -51,7 +50,7 @@ export async function handleNotify(
     content = await compileTemplate(notifyEntry.content, metadata);
   }
 
-  const options: NotifyRequestOptions = {
+  const options: FetchOptions = {
     body: JSON.stringify(content),
   };
 

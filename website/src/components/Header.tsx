@@ -1,84 +1,56 @@
-import React, { FunctionComponent, MouseEventHandler } from 'react';
-import { Link } from 'gatsby';
+import Link from '@docusaurus/Link';
+import Translate, { translate } from '@docusaurus/Translate';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import cx from 'classnames';
+import React from 'react';
 
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
+import Command from './Command';
+import styles from './Header.module.scss';
+import Logo from './Logo';
 
-import VerdaccioWhiteLogo from './VerdaccioWhiteLogo';
-
-export type Props = {
-  onClickOpen: MouseEventHandler;
-  isPermanent: boolean;
-};
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    appBar: {
-      // zIndex: theme.zIndex.drawer + 1,
-      backgroundColor: '#FFF',
-    },
-    appBarShift: {
-      [theme.breakpoints.up('lg')]: {
-        width: 'calc(100% - 299px)',
-      },
-    },
-    drawer: {
-      [theme.breakpoints.up('lg')]: {
-        flexShrink: 0,
-        width: 300,
-      },
-    },
-    navIconHide: {
-      color: '#000',
-      [theme.breakpoints.up('lg')]: {
-        display: 'none',
-      },
-    },
-  })
-);
-
-const Header: FunctionComponent<Props> = ({ onClickOpen, isPermanent }) => {
-  // const {
-  //   site: {
-  //     siteMetadata: { siteName },
-  //   },
-  // } = useStaticQuery(graphql`
-  //   query {
-  //     site {
-  //       siteMetadata {
-  //         siteName
-  //       }
-  //     }
-  //   }
-  // `);
-  const classes = useStyles();
-
+const Header = (): React.ReactElement => {
   return (
-    <AppBar
-      onClick={onClickOpen}
-      className={cx(classes.appBar, {
-        [classes.appBarShift]: isPermanent,
-      })}>
-      <Toolbar>
-        <IconButton
-          edge="start"
-          color="inherit"
-          onClick={onClickOpen}
-          className={classes.navIconHide}>
-          <MenuIcon />
-        </IconButton>
-        <Typography component="h2" variant="h5">
-          <Link title="Home" to="/">
-            <VerdaccioWhiteLogo width="30px" />
-          </Link>
-        </Typography>
-      </Toolbar>
-    </AppBar>
+    <div className={styles.header}>
+      <div className={styles['header--wrap']}>
+        <Logo />
+        <div className={styles['header--mt-2']}>
+          <h1 className={styles['header--title']}>Verdaccio</h1>
+          <p className={styles['header--subtitle']}>
+            <Translate>A lightweight Node.js private proxy registry</Translate>
+          </p>
+          <iframe
+            src={
+              'https://ghbtns.com/github-btn.html?user=verdaccio&repo=verdaccio&type=star&count=true&size=large'
+            }
+            frameBorder="0"
+            scrolling="0"
+            width="160px"
+            height="30px"
+            style={{ marginTop: '8px' }}
+          />
+          <div className={styles['header--links']}>
+            <a href="/Talks" className="link-secondary">
+              WATCH
+            </a>
+            <Link to={useBaseUrl('/docs/what-is-verdaccio')} className="link-primary">
+              <Translate>GET STARTED</Translate>
+            </Link>
+            <a
+              href="https://www.wfp.org/support-us/stories/ukraine-appeal"
+              className={cx('link-secondary', 'specialButton')}
+            >
+              <Translate>DONATE</Translate>
+            </a>
+          </div>
+        </div>
+        <div className={styles['header--m-2']}>
+          <Command
+            command="npm install --global verdaccio"
+            alt={translate({ message: 'NPM command to install Verdaccio' })}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 
