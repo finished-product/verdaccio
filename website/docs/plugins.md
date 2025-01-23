@@ -3,46 +3,67 @@ id: plugins
 title: 'Plugins'
 ---
 
-Verdaccio is an plugabble aplication. It can be extended in many ways, either new authentication methods, adding
-endpoints or using a custom storage.
+Verdaccio is a pluggable application. It can be extended in many ways, either new authentication methods, adding endpoints or using a custom storage.
 
 There are 5 types of plugins:
 
 - [Authentication](plugin-auth.md)
 - [Middleware](plugin-middleware.md)
 - [Storage](plugin-storage.md)
-- Custom Theme and filters
+- [Theme UI](plugin-theme.md)
+- [Filters](plugin-filter.md)
 
-> If you are interested to develop your own plugin, read the [development](dev-plugins.md) section.
+## Usage {#usage}
 
-<div id="codefund">''</div>
-
-## Usage
-
-### Installation
+### Installation {#installation}
 
 ```bash
 $> npm install --global verdaccio-activedirectory
 ```
 
-`verdaccio` as a sinopia fork it has backward compability with plugins that are compatible with `sinopia@1.4.0`. In such case the installation is the same.
+`verdaccio` as a sinopia fork it has backward compatibility with plugins that are compatible with `sinopia@1.4.0`. In such case the installation is the same.
 
 ```
 $> npm install --global sinopia-memory
 ```
 
-### Configuration
+### Configuration {#configuration}
 
 Open the `config.yaml` file and update the `auth` section as follows:
 
 The default configuration looks like this, due we use a build-in `htpasswd` plugin by default that you can disable just commenting out the following lines.
 
-### Authentication Configuration
+### Naming convention {#naming-convention}
+
+Since version `2.0.0` until version plugins must start with the following convention:
+
+- `sinopia-xxx` (deprecated and will be removed on 6.x.x)
+- `verdaccio-xxx`
+
+After version `5.12.0` scoped plugins are supported, for example:
 
 ```yaml
-htpasswd:
-  file: ./htpasswd
-  # max_users: 1000
+auth:
+  '@my-org/auth-awesome-plugin':
+    foo: some value
+    bar: another value
+store:
+  '@my-org/store-awesome-plugin':
+    foo: some value
+    bar: another value
+middleware:
+  '@my-org/middleware-awesome-plugin':
+    foo: some value
+    bar: another value
+```
+
+### Authentication Configuration {#authentication-configuration}
+
+```yaml
+auth:
+  htpasswd:
+    file: ./htpasswd
+    # max_users: 1000
 ```
 
 and replacing them with (in case you decide to use a `ldap` plugin.
@@ -55,9 +76,9 @@ auth:
     domainSuffix: 'sample.local'
 ```
 
-#### Multiple Authentication plugins
+#### Multiple Authentication plugins {#multiple-authentication-plugins}
 
-This is tecnically possible, making the plugin order important, as the credentials will be resolved in order.
+This is technically possible, making the plugin order important, as the credentials will be resolved in order.
 
 ```yaml
 auth:
@@ -70,9 +91,9 @@ auth:
     domainSuffix: 'sample.local'
 ```
 
-### Middleware Configuration
+### Middleware Configuration {#middleware-configuration}
 
-This is an example how to set up a middleware plugin. All middleware plugins must be defined in the **middlewares** namespace.
+Example how to set up a middleware plugin. All middleware plugins must be defined in the **middlewares** namespace.
 
 ```yaml
 middlewares:
@@ -82,9 +103,15 @@ middlewares:
 
 > You might follow the [audit middle plugin](https://github.com/verdaccio/verdaccio-audit) as base example.
 
-### Storage Configuration
+### Storage Configuration {#storage-configuration}
 
-This is an example how to set up a storage plugin. All storage plugins must be defined in the **store** namespace.
+:::caution
+
+If the `store` property is defined in the `config.yaml` file, the `storage` property is being ignored.
+
+:::caution
+
+Example how to set up a storage plugin. All storage plugins must be defined in the **store** namespace.
 
 ```yaml
 store:
@@ -92,20 +119,13 @@ store:
     limit: 1000
 ```
 
-### Theme Configuration
-
-Verdaccio allows to replace the User Interface with a custom one, we call it **theme**.
-By default, uses `@verdaccio/ui-theme` that comes built-in, but, you can use something different installing your own plugin.
+### Theme Configuration {#theme-configuration}
 
 ```bash
-
-$> npm install --global verdaccio-theme-dark
-
+npm install --global verdaccio-theme-dark
 ```
 
-> The plugin name prefix must start with `verdaccio-theme`, otherwise the plugin won't load.
-
-You can load only one theme at the time and pass through options if is need it.
+You can load only one theme at a time and pass through options if you need it.
 
 ```yaml
 theme:
@@ -114,9 +134,30 @@ theme:
     option2: bar
 ```
 
-## Legacy plugins
+### Filter Configuration (Experimental) {#filter-configuration}
 
-### Sinopia Plugins
+A real example from [npm i -g verdaccio-plugin-secfilter](https://github.com/Ansile/verdaccio-plugin-secfilter) filter plugin.
+
+```yaml
+filters:
+  plugin-secfilter:
+    block:
+      - scope: @evil # block all packages in scope
+      - package: semvver # block a malicious package
+      - package: @coolauthor/stolen
+        versions: '>2.0.1' # block some malicious versions of previously ok package
+                           # uses https://www.npmjs.com/package/semver syntax
+```
+
+## Legacy plugins {#legacy-plugins}
+
+### Sinopia Plugins {#sinopia-plugins}
+
+:::caution
+
+After version 6 sinopia plugins are not longer supported due the naming convention.
+
+:::caution
 
 > If you are relying on any sinopia plugin, remember are deprecated and might no work in the future.
 
