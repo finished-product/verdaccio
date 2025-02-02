@@ -1,8 +1,8 @@
 import ActiveDirectory from 'activedirectory2';
-import { HTTP_STATUS } from '@verdaccio/commons-api';
+
+import { HTTP_STATUS } from '@verdaccio/core';
 
 import ActiveDirectoryPlugin, { NotAuthMessage } from '../src/active-directory';
-
 // eslint-disable-next-line jest/no-mocks-import
 import logger from './__mocks__/Logger';
 
@@ -83,7 +83,7 @@ describe('Active Directory Plugin', () => {
     const errorMessage = 'Unknown error retrieving groups';
     ActiveDirectory.prototype.authenticate = jest.fn((_1, _2, cb) => cb(null, true));
     ActiveDirectory.prototype.getGroupMembershipForUser = jest.fn((_, cb) =>
-      cb((errorMessage as unknown) as object, null)
+      cb(errorMessage as unknown as object, null)
     ) as jest.Mock;
 
     adPluginSingleGroup.authenticate('', '', (error, authUser) => {

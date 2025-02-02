@@ -1,29 +1,25 @@
-## Verdaccio Website
+# Website docusaurus v2
 
-Website build with Gatsby.js
+This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
-### Development
+## Installation
 
-```
-nvm install
-yarn install
-```
-
-Run locally
-
-```
-yarn develop
+```console
+pnpm install
 ```
 
-Run [http://localhost:8000/](http://localhost:8000/)
-GraphQL [http://localhost:8000/\_\_\_graphql](http://localhost:8000/___graphql)
+## Local Development
 
-or build locally
-
-```
-yarn clean && yarn build && yarn serve
+```console
+pnpm start
 ```
 
-#### Deployment
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
-Website is deployed on push on master at [https://alpha.verdaccio.dev/](https://alpha.verdaccio.dev/)
+## Build
+
+```console
+pnpm build
+```
+
+This command generates static content into the `build` directory and can be served using any static contents hosting service.

@@ -7,9 +7,7 @@ An _uplink_ is a link with an external registry that provides access to external
 
 ![Uplinks](https://user-images.githubusercontent.com/558752/52976233-fb0e3980-33c8-11e9-8eea-5415e6018144.png)
 
-<div id="codefund">''</div>
-
-### Usage
+### Usage {#usage}
 
 ```yaml
 uplinks:
@@ -24,7 +22,10 @@ uplinks:
     url: http://localhost:55666/
 ```
 
-### Configuration
+Here's an example of seamlessly integrating npmjs and GitHub registries using Verdaccio:
+[How to use Verdaccio with GitHub registry](https://dev.to/verdaccio/how-to-use-verdaccio-with-github-registry-2ejj)
+
+### Configuration {#configuration}
 
 You can define mutiple uplinks and each of them must have an unique name (key). They can have the following properties:
 
@@ -42,7 +43,7 @@ You can define mutiple uplinks and each of them must have an unique name (key). 
 | strict_ssl    | boolean | No       | [true,false]                            | >= 3.0   | If true, requires SSL certificates be valid.                                                                                                                             | true       |
 | agent_options | object  | No       | maxSockets: 10                          | >= 4.0.2 | options for the HTTP or HTTPS Agent responsible for managing uplink connection persistence and reuse [more info](https://nodejs.org/api/http.html#http_class_http_agent) | No default |
 
-#### Auth property
+#### Auth property {#auth-property}
 
 The `auth` property allows you to use an auth token with an uplink. Using the default environment variable:
 
@@ -52,10 +53,10 @@ uplinks:
     url: https://private-registry.domain.com/registry
     auth:
       type: bearer
-      token_env: true # defaults to `process.env['NPM_TOKEN']`
+      token_env: true # by defaults points to the environment variable `NPM_TOKEN`
 ```
 
-or via a specified environment variable:
+or via a specified _custom_ environment variable:
 
 ```yaml
 uplinks:
@@ -63,12 +64,12 @@ uplinks:
     url: https://private-registry.domain.com/registry
     auth:
       type: bearer
-      token_env: FOO_TOKEN
+      token_env: FOO_TOKEN # override the default `NPM_TOKEN` by a custom one
 ```
 
-`token_env: FOO_TOKEN`internally will use `process.env['FOO_TOKEN']`
+`token_env: FOO_TOKEN `internally will use `process.env['FOO_TOKEN']`
 
-or by directly specifying a token:
+or by directly specifying a token oh the configuration file (not recommended by security corcerns):
 
 ```yaml
 uplinks:
@@ -81,9 +82,10 @@ uplinks:
 
 > Note: `token` has priority over `token_env`
 
-### You Must know
+### You Must know {#you-must-know}
 
 - Uplinks must be registries compatible with the `npm` endpoints. Eg: _verdaccio_, `sinopia@1.4.0`, _npmjs registry_, _yarn registry_, _JFrog_, _Nexus_ and more.
 - Setting `cache` to false will help to save space in your hard drive. This will avoid store `tarballs` but [it will keep metadata in folders](https://github.com/verdaccio/verdaccio/issues/391).
-- Exceed with multiple uplinks might slow down the lookup of your packages due for each request a npm client does, verdaccio does 1 call for each uplink.
+- Multiple uplinks might slow down the lookup of your packages. For each request an npm client makes, verdaccio makes 1 call to each configured uplink.
 - The (timeout, maxage and fail_timeout) format follow the [NGINX measurement units](http://nginx.org/en/docs/syntax.html)
+- When using the [Helm Chart](https://github.com/verdaccio/charts), you can use `secretEnvVars` to inject sensitive environment variables, which can be used to configure private uplink auth.

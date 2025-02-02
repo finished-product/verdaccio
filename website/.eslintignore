@@ -1,11 +1,6 @@
-# Config files
-/gatsby-*.js
-
-# Builded files
-/.cache/
-/public/
-/src/dictionaries/
-/crowdin/
-
-# Node.js modules
-/node_modules/
+node_modules
+static
+*rc.js
+*.config.js
+sidebars.js
+*.scss

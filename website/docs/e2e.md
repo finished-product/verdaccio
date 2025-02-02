@@ -3,12 +3,18 @@ id: e2e
 title: 'End to End testing'
 ---
 
-Some projects organize packages in multi-packages repositories or [monorepos](https://github.com/babel/babel/blob/master/doc/design/monorepo.md). E2E testing is a topic that usually is only relevant for User Interfaces, but from a Node.js perspective, **publishing packages also need to be tested**.
+### Testing the integrity of React components by publishing in a private registry
 
-<div id="codefund">''</div>
+> The final stage of a react component is when it is being published and distributed. How can I ensure my packages won’t crash in production? This talk will help you to test your React components by publishing them to a private registry and running End-to-End tests against them.
 
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Solution: a local npm registry. <a href="https://t.co/kvcyVANVSK">https://t.co/kvcyVANVSK</a></p>&mdash; Dan Abramov (@dan_abramov) <a href="https://twitter.com/dan_abramov/status/951427674844680192?ref_src=twsrc%5Etfw">11 de enero de 2018</a></blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<iframe width="300" height="600" src="https://www.youtube.com/embed/bRKZbrlQqLY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+- [Slides](https://docs.google.com/presentation/d/1a2xkqj1KlUayR1Bva1bVYvavwOPVuLplxFtup9MI_U4/edit?usp=sharing)
+- [Demo](https://github.com/juanpicado/verdaccio-end-to-end-tests)
+
+## End to End and Verdaccio
+
+Some projects organize packages in multi-packages repositories or [monorepos](https://github.com/babel/babel/blob/master/doc/design/monorepo.md). End to End testing is a topic that usually is only relevant for User Interfaces, but from a Node.js perspective, **publishing packages also need to be tested**.
 
 Such approach has been really hard to achieve considering:
 
@@ -18,14 +24,28 @@ Such approach has been really hard to achieve considering:
 
 **Verdaccio** is a lightweight registry with zero-configuration that **fits perfectly in any E2E + CI workflow**.
 
-## Implementation
+## Implementation {#implementation}
 
 There is no a silver bullet yet, each implementation seems to be specific for each project, you can check some of them in
 the following thread [clicking here](https://stackoverflow.com/a/50222427/308341).
 
-### Example using Bash
+## Examples in Open Source
 
-This is the most simple example using Verdaccio in a bash script (extracted from _create-react-app_).
+The following projects have examples using Verdaccio in Open Source
+
+### Bash Examples
+
+- [Bun ![Stars](https://img.shields.io/github/stars/oven-sh/bun?label=⭐️)](https://github.com/oven-sh/bun/commits/main/test/cli/install/registry/verdaccio.yaml)
+- [Babel.js ![Stars](https://img.shields.io/github/stars/babel/babel?label=⭐️)](https://github.com/babel/babel)
+- [Docusaurus ![Stars](https://img.shields.io/github/stars/facebook/docusaurus?label=⭐️)](https://github.com/facebook/docusaurus)
+- [create-react-app ![Stars](https://img.shields.io/github/stars/facebook/create-react-app?label=⭐️)](https://github.com/facebook/create-react-app/blob/master/CONTRIBUTING.md#contributing-to-e2e-end-to-end-tests)
+- [pnpm ![Stars](https://img.shields.io/github/stars/pnpm/pnpm?label=⭐️)](https://github.com/pnpm/pnpm)
+- [Uppy ![Stars](https://img.shields.io/github/stars/transloadit/uppy?label=⭐️)](https://github.com/transloadit/uppy)
+- [ethereum/web3.js ![Stars](https://img.shields.io/github/stars/ethereum/web3.js?label=⭐️)](https://github.com/ethereum/web3.js)
+- [adobe react-spectrum ![Stars](https://img.shields.io/github/stars/adobe/react-spectrum?label=⭐️)](https://github.com/adobe/react-spectrum/pull/2432)
+- [Mozilla Neutrino ![Stars](https://img.shields.io/github/stars/neutrinojs/neutrino?label=⭐️)](https://github.com/neutrinojs/neutrino)
+
+This is the simplest example using Verdaccio in a bash script (extracted from _create-react-app_).
 
 ```bash
 #!/bin/sh
@@ -47,18 +67,35 @@ sh -c "npm-auth-to-token -u test -p test -e test@test.com -r $local_registry"
 sh -c "npm --registry $local_registry publish"
 ```
 
-## Who is using it for E2E?
+### Docker Examples
 
-- [create-react-app](https://github.com/facebook/create-react-app/blob/master/CONTRIBUTING.md#contributing-to-e2e-end-to-end-tests) _(+73.5k ⭐️)_
-- [Storybook](https://github.com/storybooks/storybook) _(+44k ⭐️)_
-- [Gatsby](https://github.com/gatsbyjs/gatsby) \*(+40k ⭐️)
-- [Babel.js](https://github.com/babel/babel) _(+35k ⭐️)_
-- [Uppy](https://github.com/transloadit/uppy) _(+21k ⭐️)_
-- [Aurelia Framework](https://github.com/aurelia) _(+12k ⭐️)_
-- [ethereum/web3.js](https://github.com/ethereum/web3.js) _(+8k ⭐️)_
-- [bit](https://github.com/teambit/bit) _(+6k ⭐️)_
-- [pnpm](https://github.com/pnpm/pnpm) _(+6k ⭐️)_
-- [Mozilla Neutrino](https://github.com/neutrinojs/neutrino) _(+3k ⭐️)_
-- [Embark](https://embark.status.im/) _(+3k ⭐️)_
-- [Hyperledger Composer](https://github.com/hyperledger/composer) _(+1.6k ⭐️)_
-- [Wix Yoshi](https://github.com/wix/yoshi)
+- [Hyperledger](https://github.com/hyperledger/fabric-chaincode-node)
+
+### Programmatically Examples
+
+- [Storybook ![Stars](https://img.shields.io/github/stars/storybooks/storybook?label=⭐️)](https://github.com/storybooks/storybook)
+- [Gatsby ![Stars](https://img.shields.io/github/stars/gatsbyjs/gatsby?label=⭐️)](https://github.com/gatsbyjs/gatsby)
+
+#### Verdaccio module
+
+Via CLI:
+
+- [Aurelia Framework ![Stars](https://img.shields.io/github/stars/aurelia/framework?label=⭐️)](https://github.com/aurelia)
+- [Netlify CLI ![Stars](https://img.shields.io/github/stars/netlify/cli?label=⭐️)](https://github.com/netlify/cli)
+- [Embark ![Stars](https://img.shields.io/github/stars/embarklabs/embark?label=⭐️)](https://embark.status.im/)
+- [Microsoft Beachball ![Stars](https://img.shields.io/github/stars/microsoft/beachball?label=⭐️)](https://github.com/microsoft/beachball)
+
+#### Node.js `child_process` examples
+
+- [Angular CLI ![Stars](https://img.shields.io/github/stars/angular/angular-cli?label=⭐️)](https://github.com/angular/angular-cli)
+- [bit ![Stars](https://img.shields.io/github/stars/teambit/bit?label=⭐️)](https://github.com/teambit/bit)
+- [pnpm ![Stars](https://img.shields.io/github/stars/pnpm/pnpm?label=⭐️)](https://github.com/pnpm/pnpm)
+- [aws-sdk cli v3 ![Stars](https://img.shields.io/github/stars/aws/aws-sdk-js-v3?label=⭐️)](https://github.com/aws/aws-sdk-js-v3)
+- [angular-eslint ![Stars](https://img.shields.io/github/stars/angular-eslint/angular-eslint?label=⭐️)](https://github.com/angular-eslint/angular-eslint)
+
+## Example repositories
+
+- [e2e-ci-example-gh-actions](https://github.com/juanpicado/e2e-ci-example-gh-actions)
+- [verdaccio-end-to-end-tests](https://github.com/juanpicado/verdaccio-end-to-end-tests)
+- [verdaccio-fork](https://github.com/juanpicado/verdaccio-fork)
+- [simplified e2e testing using verdaccio](https://github.com/rluvaton/e2e-verdaccio-example)

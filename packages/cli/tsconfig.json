@@ -11,10 +11,13 @@
       "path": "../config"
     },
     {
-      "path": "../core/cli-ui"
+      "path": "../core/core"
     },
     {
       "path": "../node-api"
+    },
+    {
+      "path": "../logger/logger"
     }
   ]
 }

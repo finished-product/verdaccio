@@ -3,13 +3,11 @@ id: plugin-middleware
 title: 'Middleware Plugin'
 ---
 
-## What's an Middleware Plugin?
+## What's a Middleware Plugin? {#whats-a-middleware-plugin}
 
 Middleware plugins have the capability to modify the API (web and cli) layer, either adding new endpoints or intercepting requests.
 
-<div id="codefund">''</div>
-
-### API
+### API {#api}
 
 ```typescript
 interface IPluginMiddleware<T> extends IPlugin<T> {
@@ -17,7 +15,7 @@ interface IPluginMiddleware<T> extends IPlugin<T> {
 }
 ```
 
-### `register_middlewares`
+### `register_middlewares` {#register_middlewares}
 
 The method provide full access to the authentification and storage via `auth` and `storage`. `app` is the express application that allows you to add new endpoints.
 
@@ -42,9 +40,9 @@ public register_middlewares(
 
 The `auth` and `storage` are instances and can be extended, but we don't recommend this approach unless is well founded.
 
-> A good example of a middleware plugin is the [verdaccio-audit](https://github.com/verdaccio/monorepo/tree/master/plugins/audi).
+> A good example of a middleware plugin is the [verdaccio-audit](https://github.com/verdaccio/monorepo/tree/master/plugins/audit).
 
-## Generate an middleware plugin
+## Generate a middleware plugin {#generate-a-middleware-plugin}
 
 For detailed info check our [plugin generator page](plugin-generator). Run the `yo` command in your terminal and follow the steps.
 
@@ -108,7 +106,7 @@ After the install finish, access to your project scalfold.
 
 The middleware are registrered after built-in endpoints, thus, it is not possible to override the implemented ones.
 
-### List Community Middleware Plugins
+### List Community Middleware Plugins {#list-community-middleware-plugins}
 
 - [verdaccio-audit](https://github.com/verdaccio/verdaccio-audit): verdaccio plugin for _npm audit_ cli support (built-in) (compatible since 3.x)
 
@@ -116,3 +114,6 @@ The middleware are registrered after built-in endpoints, thus, it is not possibl
 
 - [verdaccio-https](https://github.com/honzahommer/verdaccio-https) Verdaccio middleware plugin to redirect to https if x-forwarded-proto header is set
 - [verdaccio-badges](https://github.com/tavvy/verdaccio-badges) A verdaccio plugin to provide a version badge generator endpoint
+- [verdaccio-openmetrics](https://github.com/freight-hub/verdaccio-openmetrics) Verdaccio plugin exposing an OpenMetrics/Prometheus endpoint with health and traffic metrics
+- [verdaccio-sentry](https://github.com/juanpicado/verdaccio-sentry) sentry loggin errors
+- [verdaccio-pacman](https://github.com/PaddeK/verdaccio-pacman) Verdaccio Middleware Plugin to manage tags and versions of packages

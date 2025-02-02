@@ -1,17 +1,15 @@
 ---
-id: config
+id: configuration
 title: 'Configuration File'
 ---
 
-This file is the cornerstone of verdaccio where you can modify the default behaviour, enable plugins and extend features.
+This file is the cornerstone of Verdaccio where you can modify the default behaviour, enable plugins and extend features.
 
 A default configuration file `config.yaml` is created the very first time you run `verdaccio`.
 
-<div id="codefund">''</div>
+## Default Configuration {#default-configuration}
 
-## Default Configuration
-
-The default configuration has support for **scoped** packages and allow any user to access all packages but only **authenticated users to publish**.
+The default configuration has support for **scoped** packages and allows any user to **access** all packages, but only authenticated users to **publish**.
 
 ```yaml
 storage: ./storage
@@ -28,15 +26,14 @@ packages:
     proxy: npmjs
   '**':
     proxy: npmjs
-logs:
-  - { type: stdout, format: pretty, level: http }
+log: { type: stdout, format: pretty, level: http }
 ```
 
-## Sections
+## Sections {#sections}
 
-The following sections explain what each property means and the different options.
+The following sections explain what each property means and their different options.
 
-### Storage
+### Storage {#storage}
 
 Is the location of the default storage. **Verdaccio is by default based on local file system**.
 
@@ -44,17 +41,44 @@ Is the location of the default storage. **Verdaccio is by default based on local
 storage: ./storage
 ```
 
-### Plugins
+> Released at v5.6.0: The environment variable `VERDACCIO_STORAGE_PATH` could be used to replace the location of the storage (only for the default storage, does not apply to plugins unless it is implemented independently).
 
-Is the location of the plugin directory. Useful for Docker/Kubernetes based deployments.
+### The `.verdaccio-db` database {#.verdaccio-db}
+
+The tiny database is used to store private packages published by the user. The database is based on a JSON file that contains
+the list of private packages published and the secret token used for the token signature.
+It is created automatically when starting the application for the first time.
+
+The location of the database is based on the `config.yaml` folder location, for instance:
+
+If the `config.yaml` is located in `/some_local_path/config.yaml`, the database will be created in `/some_local_path/storage/.verdaccio-db`.
+
+_The `.verdaccio-db` file database is only available if user does not use a custom storage_, by default verdaccio uses a tiny database to store private packages the `storage` property is defined in the `config.yaml` file.
+The location might change based on your operating system. [Read the CLI section](cli.md) for more details about the location of files.
+
+The structure of the database is based in JSON file, for instance:
+
+```json
+{
+  "list": ["package1", "@scope/pkg2"],
+  "secret": "secret_token_32_characters_long"
+}
+```
+
+- `list`: Is an array with the list of the private packages published, any item on this list is considered being published by the user.
+- `secret`: The secret field is used for the token signature and verification, either for _JWT_ or legacy token signature.
+
+### Plugins {#plugins}
+
+Is the location of the plugin directory. Useful for Docker/Kubernetes-based deployments.
 
 ```yaml
 plugins: ./plugins
 ```
 
-### Authentification
+### Authentication {#authentication}
 
-The authentification set up is done here, the default auth is based on `htpasswd` and is built-in. You can modify this behaviour via [plugins](plugins.md). For more information about this section read the [auth page](auth.md).
+The authentication setup is done here. The default auth is based on `htpasswd` and is built in. You can modify this behaviour via [plugins](plugins.md). For more information about this section read the [auth page](auth.md).
 
 ```yaml
 auth:
@@ -63,33 +87,52 @@ auth:
     max_users: 1000
 ```
 
-### Security
+### Token signature {#token}
 
-<small>Since: `verdaccio@4.0.0` [#168](https://github.com/verdaccio/verdaccio/pull/168)</small>
+The default token signature is based on the Advanced Encryption Standard (AES) with the algorithm `aes-256-ctr`, known as _legacy_. It's important to note that legacy tokens are not designed to expire. If expiration functionality is needed, it is recommended to use _JSON Web Tokens (JWT)_ instead.
 
-The security block allows you to customise the token signature. To enable [JWT (json web token)](https://jwt.io/) new signture you need to add the block `jwt` to `api` section, `web` uses by default `jwt`.
+### Security {#security}
 
-The configuration is separated in two sections, `api` and `web`. To use JWT on `api`, it has to be defined, otherwise will use the legacy token signature (`aes192`). For JWT you might customize the [signature](https://github.com/auth0/node-jsonwebtoken#jwtsignpayload-secretorprivatekey-options-callback) and the token [verification](https://github.com/auth0/node-jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback) with your own properties.
+The security block permits customization of the token signature with two options. The configuration is divided into
+two sections, `api` and `web`. When using JWT on `api`, it must be defined; otherwise, the legacy token signature (`aes-256-ctr`) will be utilized.
 
-```
+#### How to the token is generated?
+
+The token signature requires a **secret token** generated by custom plugin that creates the `.verdaccio-db` database or in case a custom storage is used,
+the secret token is fetched from the plugin implementation itself. In any case the _secret token_ is required to start the application.
+
+#### Legacy Token Signature
+
+The `legacy` property is used to enable the legacy token signature. **By default is enabled**. The legacy feature only applies to the API, the web UI uses JWT by default.
+
+```yaml
 security:
   api:
-    legacy: true
+    legacy: true # by default is true even if this section is not defined
+```
+
+#### JWT Token Signature
+
+To enable a new [JWT (JSON Web Tokens)](https://jwt.io/) signature, the `jwt` block needs to be added to the `api` section; `jwt` is utilized by default in `web`.
+
+By using the JWT signature is also possible to customize the [signature](https://github.com/auth0/node-jsonwebtoken#jwtsignpayload-secretorprivatekey-options-callback) and the token [verification](https://github.com/auth0/node-jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback) with your own properties.
+
+```yaml
+security:
+  api:
     jwt:
       sign:
         expiresIn: 29d
       verify:
         someProp: [value]
-   web:
-     sign:
-       expiresIn: 7d # 7 days by default
-     verify:
-     	someProp: [value]
+  web:
+    sign:
+      expiresIn: 1h # 1 hour by default
+    verify:
+      someProp: [value]
 ```
 
-> We highly recommend move to JWT since legacy signature (`aes192`) is deprecated and will disappear in future versions.
-
-### Server
+### Server {#server}
 
 A set of properties to modify the behavior of the server application, specifically the API (Express.js).
 
@@ -102,9 +145,9 @@ server:
   keepAliveTimeout: 60
 ```
 
-### Web UI
+### Web UI {#web-ui}
 
-This property allow you to modify the look and feel of the web UI. For more information about this section read the [web ui page](web.md).
+This property allow you to modify the look and feel of the web UI. For more information about this section read the [web UI page](web.md).
 
 ```yaml
 web:
@@ -114,9 +157,9 @@ web:
   scope:
 ```
 
-### Uplinks
+### Uplinks {#uplinks}
 
-Uplinks is the ability of the system to fetch packages from remote registries when those packages are not available locally. For more information about this section read the [uplinks page](uplinks.md).
+Uplinks add the ability to fetch packages from remote registries when those packages are not available locally. For more information about this section read the [uplinks page](uplinks.md).
 
 ```yaml
 uplinks:
@@ -124,9 +167,9 @@ uplinks:
     url: https://registry.npmjs.org/
 ```
 
-### Packages
+### Packages {#packages}
 
-Packages allow the user to control how the packages are gonna be accessed. For more information about this section read the [packages page](packages.md).
+This section allows you to control how packages are accessed. For more information about this section read the [packages page](packages.md).
 
 ```yaml
 packages:
@@ -136,38 +179,110 @@ packages:
     proxy: npmjs
 ```
 
-## Advanced Settings
+## Advanced Settings {#advanced-settings}
 
-### Offline Publish
+### Offline Publish {#offline-publish}
 
-By default `verdaccio` does not allow to publish when the client is offline, that behavior can be overridden by setting this to _true_.
+By default Verdaccio does not allow you to publish packages when the client is offline. This can be overridden by setting this value to _true_.
 
 ```yaml
 publish:
   allow_offline: false
 ```
 
+### Checking Package Ownership {#check-owner}
+
+By default, [package access](packages.md) defines who is allowed to publish and unpublish packages. By setting `check_owners` to _true_, only package owners are allowed to make changes to a package. The first owner of a package is the user who published the first version. Further owners can be added or removed using [`npm owner`](https://docs.npmjs.com/cli/v10/commands/npm-owner). You can find the list of current owners using `npm owner list` or by checking the package manifest under `maintainers`.
+
+```yaml
+publish:
+  check_owners: false
+```
+
+### Keep Readmes {#keep-readmes}
+
+By default, Verdaccio stores only the readme markdown of the latest version for each package. Setting `keep_readmes` to `'tagged'` keeps the readmes of versions with `dist-tags` (for example, `latest`, `next`, and major branches). Using the `'all'` setting will retain the complete history of readme versions. Note that `'all'` can significantly increase the required storage space for packages published to Verdaccio!
+
+```yaml
+publish:
+  keep_readmes: 'tagged'
+```
+
 <small>Since: `verdaccio@2.3.6` due [#223](https://github.com/verdaccio/verdaccio/pull/223)</small>
 
-### URL Prefix
+### URL Prefix {#url-prefix}
+
+The prefix is intended to be used when the server runs behinds the proxy and won't work properly if is used without a reverse proxy, check the **reverse proxy setup** page for more details.
+
+The internal logic builds correctly the public url, validates the `host` header and bad shaped `url_prefix`.
+
+eg: `url_prefix: /verdaccio`, `url_prefix: verdaccio/`, `url_prefix: verdaccio` would be `/verdaccio/`
 
 ```yaml
 url_prefix: /verdaccio/
 ```
 
-> We recommend use a subdirectory `/verdaccio/` instead a URI.
+The new `VERDACCIO_PUBLIC_URL` is intended to be used behind proxies, this variable will be used for:
 
-### Max Body Size
+- Used as base path to serve UI resources as (js, favicon, etc)
+- Used on return metadata `dist` base path
+- Ignores `host` and `X-Forwarded-Proto` headers
+- If `url_prefix` is defined would be appened to the env variable.
 
-By default the maximum body size for a JSON document is `10mb`, if you run in errors as `"request entity too large"` you may increase this value.
+```
+VERDACCIO_PUBLIC_URL='https://somedomain.org';
+url_prefix: '/my_prefix'
+
+// url -> https://somedomain.org/my_prefix/
+
+VERDACCIO_PUBLIC_URL='https://somedomain.org';
+url_prefix: '/'
+
+// url -> https://somedomain.org/
+
+VERDACCIO_PUBLIC_URL='https://somedomain.org/first_prefix';
+url_prefix: '/second_prefix'
+
+// url -> https://somedomain.org/second_prefix/'
+```
+
+### User Agent {#user-agent}
+
+<small>Since: `verdaccio@5.4.0`</small>
+
+The user agent is disabled by default, in exchange the user agent client (package manager, browser, etc ...) is being bypassed to the remote. To enable the previous behaviour use boolean values.
+
+```yaml
+user_agent: true
+user_agent: false
+user_agent: 'custom user agent'
+```
+
+### User Rate Limit {#user-rate-limit}
+
+<small>Since: [verdaccio@5.4.0](https://github.com/verdaccio/verdaccio/releases/tag/v5.4.0)</small>
+
+Add default rate limit to user endpoints, `npm token`, `npm profile`, `npm login/adduser` and login website to 100 request peer 15 min, customizable via:
+
+```
+userRateLimit:
+  windowMs: 50000
+  max: 1000
+```
+
+Additonal configuration (only feature flags) is also possible via the [middleware docs](https://github.com/nfriedly/express-rate-limit/#configuration-options).
+
+### Max Body Size {#max-body-size}
+
+By default the maximum body size for a JSON document is `10mb`, if you run into errors that state `"request entity too large"` you may increase this value.
 
 ```yaml
 max_body_size: 10mb
 ```
 
-### Listen Port
+### Listen Port {#listen-port}
 
-`verdaccio` runs by default in the port `4873`. Changing the port can be done via [cli](cli.md) or in the configuration file, the following options are valid.
+`verdaccio` runs by default on the port `4873`. Changing the port can be done via [CLI](cli.md) or in the configuration file. The following options are valid:
 
 ```yaml
 listen:
@@ -179,9 +294,9 @@ listen:
 # - unix:/tmp/verdaccio.sock    # unix socket
 ```
 
-### HTTPS
+### HTTPS {#https}
 
-To enable `https` in `verdaccio` it's enough to set the `listen` flag with the protocol _https://_. For more information about this section read the [ssl page](ssl.md).
+To enable `https` in `verdaccio` it's enough to set the `listen` flag with the protocol _https://_. For more information about this section read the [SSL page](ssl.md).
 
 ```yaml
 https:
@@ -190,30 +305,30 @@ https:
   ca: ./path/verdaccio-csr.pem
 ```
 
-### Proxy
+### Proxy {#proxy}
 
 Proxies are special-purpose HTTP servers designed to transfer data from remote servers to local clients.
 
-#### http_proxy and https_proxy
+#### http_proxy and https_proxy {#http_proxy-and-https_proxy}
 
-If you have a proxy in your network you can set a `X-Forwarded-For` header using the following properties.
+If you have a proxy in your network you can set a `X-Forwarded-For` header using the following properties:
 
 ```yaml
 http_proxy: http://something.local/
 https_proxy: https://something.local/
 ```
 
-#### no_proxy
+#### no_proxy {#no_proxy}
 
-This variable should contain a comma-separated list of domain extensions proxy should not be used for.
+This variable should contain a comma-separated list of domain extensions that the proxy should not be used for.
 
 ```yaml
 no_proxy: localhost,127.0.0.1
 ```
 
-### Notifications
+### Notifications {#notifications}
 
-Enabling notifications to third-party tools is fairly easy via web hooks. For more information about this section read the [notifications page](notifications.md).
+Enabling notifications to third-party tools is fairly easy via webhooks. For more information about this section read the [notifications page](notifications.md).
 
 ```yaml
 notify:
@@ -223,9 +338,27 @@ notify:
   content: '{"color":"green","message":"New package published: * {{ name }}*","notify":true,"message_format":"text"}'
 ```
 
-> For more detailed configuration settings, please [check the source code](https://github.com/verdaccio/verdaccio/tree/master/conf).
+> For more detailed configuration settings, please [check the source code](https://github.com/verdaccio/verdaccio/tree/master/packages/config/src/conf).
 
-### Audit
+### Logger {#logger}
+
+Two logger types are supported, you may chose only one of them:
+
+#### console output (the default)
+
+```
+log: { type: stdout, format: pretty, level: http }
+```
+
+#### file output
+
+```
+log: { type: file, path: verdaccio.log, level: info }
+```
+
+For full information - see here: [Features/logger](logger.md)
+
+### Audit {#audit}
 
 <small>Since: `verdaccio@3.0.0`</small>
 
@@ -238,21 +371,50 @@ a built-in middleware plugin to handle this command.
 middlewares:
   audit:
     enabled: true
+    # timeout: 10000
 ```
 
-### Experiments
+### Experiments {#experiments}
 
 This release includes a new property named `experiments` that can be placed in the `config.yaml` and is completely optional.
 
-We want to be able to ship new things without affecting production environments. This flag allows us to add new features and get feedback from the community that wants to use them.
+We want to be able to ship new things without affecting production environments. This flag allows us to add new features and get feedback from the community who decides to use them.
 
-The features that are under this flag might not be stable or might be removed in future releases.
+The features under this flag might not be stable or might be removed in future releases.
 
-Here one example:
+Here is one example:
 
 ```yaml
 experiments:
-  token: false
+  changePassword: false
 ```
 
 > To disable the experiments warning in the console, you must comment out the whole `experiments` section.
+
+### Config Builder API {#builder}
+
+After version `v5.23.1` the new advanced configuration builder API is available. The API is a flexible way to generate programmatically configuration outputs either in JSON or YAML using the builder pattern, for example:
+
+```typescript
+import { ConfigBuilder } from 'verdaccio';
+
+const config = ConfigBuilder.build();
+config
+  .addUplink('upstream', { url: 'https://registry.upstream.local' })
+  .addUplink('upstream2', { url: 'https://registry.upstream2.local' })
+  .addPackageAccess('upstream/*', {
+    access: 'public',
+    publish: 'foo, bar',
+    unpublish: 'foo, bar',
+    proxy: 'some',
+  })
+  .addLogger({ level: 'info', type: 'stdout', format: 'json' })
+  .addStorage('/tmp/verdaccio')
+  .addSecurity({ api: { legacy: true } });
+
+// generate JSON object as output
+config.getConfig();
+
+// generate output as yaml
+config.getAsYaml();
+```

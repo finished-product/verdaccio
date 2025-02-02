@@ -3,15 +3,15 @@ import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
 
 import env from '../config/env';
-
 import config from './webpack.dev.config.babel';
 
 const compiler = webpack(config);
 const spinner = ora('Compiler is running...').start();
+const port = 4873;
 compiler.hooks.done.tap('Verdaccio Dev Server', () => {
   if (!global.rebuild) {
     spinner.stop();
-    console.log('Dev Server Listening at http://localhost:4873/');
+    console.log(`Dev Server Listening at http://localhost:${port}/`);
     global.rebuild = true;
   }
 });
@@ -40,7 +40,7 @@ new WebpackDevServer(compiler, {
       target: 'http://localhost:8000',
     },
   ],
-}).listen(4873, 'localhost', function (err) {
+}).listen(port, '0.0.0.0', function (err) {
   if (err) {
     return console.log(err);
   }

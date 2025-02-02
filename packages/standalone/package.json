@@ -1,6 +1,6 @@
 {
   "name": "@verdaccio/cli-standalone",
-  "version": "6.0.0-alpha.5",
+  "version": "8.0.0-next-8.0",
   "description": "standalone verdaccio registry with no dependencies",
   "main": "dist/bundle.js",
   "bin": {
@@ -17,7 +17,7 @@
     "clean": "rimraf ./dist",
     "lint": "eslint . --ext .js,.ts",
     "build:web": "ts-node ./scripts/web.ts",
-    "build": "pnpm run clean && webpack --progress && pnpm run build:web",
+    "build:standalone": "pnpm run clean && webpack --progress && pnpm run build:web",
     "build:stats": "webpack --json > stats.json",
     "build:size": "webpack --json | webpack-bundle-size-analyzer"
   },
@@ -32,13 +32,13 @@
   "homepage": "https://verdaccio.org",
   "license": "MIT",
   "devDependencies": {
-    "@verdaccio/cli": "workspace:6.0.0-6-next.10",
-    "@verdaccio/ui-theme": "workspace:6.0.0-alpha.5",
-    "fs-extra": "9.0.1",
-    "webpack": "^5.11.1",
-    "webpack-cli": "^4.3.1",
-    "webpack-bundle-analyzer": "3.8.0",
-    "webpack-bundle-size-analyzer": "3.1.0"
+    "@verdaccio/cli": "workspace:8.0.0-next-8.8",
+    "@verdaccio/ui-theme": "workspace:8.0.0-next-8.8",
+    "fs-extra": "11.2.0",
+    "webpack": "5.97.1",
+    "webpack-bundle-analyzer": "4.10.2",
+    "webpack-bundle-size-analyzer": "3.1.0",
+    "webpack-cli": "4.10.0"
   },
   "keywords": [
     "private",
@@ -52,8 +52,7 @@
     "verdaccio"
   ],
   "engines": {
-    "node": ">=10",
-    "npm": ">=6"
+    "node": ">=18"
   },
   "preferGlobal": true,
   "collective": {
